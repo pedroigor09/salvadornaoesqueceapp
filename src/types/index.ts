@@ -40,4 +40,5 @@ export interface Victim {
   tribute?: string;
   submittedBy?: string;
   isApproved: boolean;
+  image?: string;
 }

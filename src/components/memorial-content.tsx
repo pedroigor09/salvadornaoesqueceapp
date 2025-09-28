@@ -4,8 +4,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Heart, Plus, Calendar, MapPin, Users } from "lucide-react";
+import { Heart, Plus, Calendar, MapPin, Users, Loader2 } from "lucide-react";
 import { Victim } from "@/types";
+import { AddVictimModal } from "@/components/add-victim-modal";
+import { useVictims } from "@/hooks/useVictims";
 
 // Dados exemplo para o memorial - em produção viria de uma API
 const MOCK_VICTIMS: Victim[] = [
@@ -109,11 +111,19 @@ function EpicMemorialCard({ victim, isHovered, onHover, onLeave, gradient }: Epi
           }
         `}
       >
+        {/* Imagem de fundo se disponível */}
+        {victim.image && (
+          <div 
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${victim.image})` }}
+          />
+        )}
+        
         {/* Fundo gradiente */}
-        <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-90`} />
+        <div className={`absolute inset-0 bg-gradient-to-br ${gradient} ${victim.image ? 'opacity-70' : 'opacity-90'}`} />
         
         {/* Overlay escuro para melhor legibilidade */}
-        <div className="absolute inset-0 bg-black bg-opacity-40" />
+        <div className={`absolute inset-0 bg-black ${victim.image ? 'bg-opacity-60' : 'bg-opacity-40'}`} />
         
         {/* Efeito de brilho no hover */}
         <div 
@@ -196,9 +206,10 @@ function EpicMemorialCard({ victim, isHovered, onHover, onLeave, gradient }: Epi
 }
 
 export function MemorialContent() {
-  const [victims] = useState<Victim[]>(MOCK_VICTIMS);
+  const { victims, loading, error, addVictim } = useVictims();
   const [selectedYear, setSelectedYear] = useState<string>("2024");
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const filteredVictims = victims.filter(victim => 
     victim.date.startsWith(selectedYear) && victim.isApproved
@@ -211,6 +222,22 @@ export function MemorialContent() {
     acc[neighborhood] = (acc[neighborhood] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
+
+  const handleAddVictim = async (victimData: any) => {
+    const success = await addVictim({
+      name: victimData.name,
+      age: victimData.age,
+      date: victimData.date,
+      location: victimData.location,
+      description: victimData.description,
+      author: victimData.author,
+      image: victimData.image
+    });
+    
+    if (success) {
+      setIsModalOpen(false);
+    }
+  };
 
   return (
     <div className="h-full relative text-white w-full overflow-hidden">
@@ -294,7 +321,10 @@ export function MemorialContent() {
             </TabsList>
           </Tabs>
           
-          <Button className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0 shadow-lg">
+          <Button 
+            onClick={() => setIsModalOpen(true)}
+            className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0 shadow-lg transition-all duration-300 hover:scale-105"
+          >
             <Plus className="mr-2 h-5 w-5" />
             Adicionar Tributo
           </Button>
@@ -302,7 +332,21 @@ export function MemorialContent() {
 
         {/* Grid de vítimas estilo Epic Games */}
         <div className="max-w-7xl mx-auto">
-          {filteredVictims.length > 0 ? (
+          {loading ? (
+            <div className="flex items-center justify-center py-16">
+              <div className="flex items-center space-x-3 text-white">
+                <Loader2 className="h-8 w-8 animate-spin" />
+                <span className="text-lg">Carregando memorial...</span>
+              </div>
+            </div>
+          ) : error ? (
+            <div className="flex items-center justify-center py-16">
+              <div className="text-center space-y-4">
+                <p className="text-red-400 text-lg">Erro ao carregar o memorial</p>
+                <p className="text-gray-300 text-sm">{error}</p>
+              </div>
+            </div>
+          ) : filteredVictims.length > 0 ? (
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
               {filteredVictims.map((victim, index) => (
                 <div
@@ -355,6 +399,13 @@ export function MemorialContent() {
           </div>
         </div>
       </div>
+
+      {/* Modal para adicionar vítima */}
+      <AddVictimModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAdd={handleAddVictim}
+      />
     </div>
   );
 }
