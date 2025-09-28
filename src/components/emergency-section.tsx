@@ -4,7 +4,7 @@ import { Phone } from "lucide-react";
 
 export function EmergencySection() {
   return (
-    <div className="py-8 relative overflow-hidden bg-gradient-to-b from-red-900/5 via-red-900/20 to-black">
+    <div className="py-8 relative overflow-hidden">
       {/* Background animado - mais sutil */}
       <div className="absolute inset-0">
         <div className="absolute inset-0">
@@ -24,7 +24,7 @@ export function EmergencySection() {
       </div>
       
       <div className="max-w-4xl mx-auto px-8 text-center relative z-10">
-        <div className="p-6 bg-gradient-to-br from-red-800/40 to-purple-800/40 rounded-3xl border border-red-500/50 backdrop-blur-sm relative overflow-hidden group">
+        <div className="p-6 bg-white/10 backdrop-blur-sm rounded-3xl border border-red-400/30 relative overflow-hidden group">
           {/* Efeito de pulso de fundo */}
           <div className="absolute inset-0 bg-gradient-to-r from-red-600/10 to-purple-600/10 rounded-3xl scale-0 group-hover:scale-100 transition-transform duration-1000" />
           
@@ -61,7 +61,7 @@ export function EmergencySection() {
               </div>
             </div>
             
-            <div className="p-4 bg-black/30 rounded-xl">
+            <div className="p-4 bg-white/5 rounded-xl border border-white/10">
               <p className="text-gray-300 text-sm">
                 💡 <strong>Dica:</strong> Se não puder falar, faça uma ligação silenciosa para 190 e pressione 0
               </p>
