@@ -206,24 +206,14 @@ export function MemorialIntro({ onComplete }: MemorialIntroProps) {
           </div>
         </div>
 
-        {/* Dica sobre pular */}
+        {/* Dica sobre pular - fixo na parte inferior */}
         {!showHearts && (
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+          <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
             <p className="text-gray-500 text-xs text-center">
-              Pressione <kbd className="px-1 py-0.5 bg-gray-800 rounded text-gray-300">ESC</kbd> ou clique em "Pular" para continuar
+              Pressione <kbd className="px-1 py-0.5 bg-gray-800 rounded text-gray-300">ESC</kbd> para continuar
             </p>
           </div>
         )}
-
-        {/* Botão de pular */}
-        <div className="absolute top-6 right-6">
-          <button
-            onClick={onComplete}
-            className="px-4 py-2 text-gray-400 hover:text-white text-sm transition-all duration-300 hover:bg-gray-800/50 rounded-lg backdrop-blur-sm border border-gray-700/30 hover:border-gray-600"
-          >
-            Pular →
-          </button>
-        </div>
 
         {/* Mensagem de continuação */}
         {showHearts && (

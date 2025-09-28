@@ -2,7 +2,7 @@
 
 import { AreaChart, Area, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { useViolenceData } from "@/hooks/use-violence-data";
-import { TrendingUp, TrendingDown, Minus, AlertTriangle, Users, MapPin, Calendar } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, AlertTriangle, Users, MapPin, Calendar, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ModernMetricCardProps {
@@ -97,7 +97,11 @@ function TopProductsCard() {
   );
 }
 
-export function ModernDashboardContent() {
+interface ModernDashboardContentProps {
+  onShowServices?: () => void;
+}
+
+export function ModernDashboardContent({ onShowServices }: ModernDashboardContentProps) {
   const { dashboardMetrics, timeSeries, yearComparison, isLoading, error } = useViolenceData();
 
   if (isLoading) {
@@ -138,6 +142,33 @@ export function ModernDashboardContent() {
 
   return (
     <div className="space-y-6">
+      {/* Card de destaque para serviços */}
+      {onShowServices && (
+        <div className="bg-gradient-to-r from-purple-900/50 via-pink-900/50 to-red-900/50 rounded-2xl p-6 border border-purple-500/30 backdrop-blur-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="p-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl">
+                <Users className="h-8 w-8 text-white" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-white mb-2">
+                  Serviços de Apoio às Mulheres
+                </h3>
+                <p className="text-gray-300">
+                  Encontre ajuda jurídica e psicológica gratuita na Bahia
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={onShowServices}
+              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 font-medium hover:scale-105"
+            >
+              Ver Serviços
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Métricas principais */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {dashboardMetrics.map((metric, index) => (

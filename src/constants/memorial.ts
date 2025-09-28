@@ -1,9 +1,9 @@
-// Cores de gradiente inspiradas em Salvador/Bahia
+// Gradientes sóbrios para memorial - tons respeitosos
 export const VICTIM_GRADIENTS = [
-  "from-yellow-400 via-orange-500 to-red-500", // Pôr do sol baiano
-  "from-blue-400 via-teal-500 to-green-500",   // Mar da Bahia
-  "from-purple-400 via-pink-500 to-red-500",   // Capoeira/cultura
-  "from-orange-400 via-red-500 to-pink-500",   // Acarajé/temperos
-  "from-indigo-400 via-purple-500 to-pink-500", // Arte/música
-  "from-green-400 via-blue-500 to-purple-500"   // Natureza/Todos os Santos
+  "from-gray-800 via-gray-700 to-gray-900",     // Cinza profundo
+  "from-slate-800 via-slate-700 to-slate-900", // Ardósia escura
+  "from-zinc-800 via-zinc-700 to-zinc-900",    // Zinco sombrio
+  "from-stone-800 via-stone-700 to-stone-900", // Pedra escura
+  "from-neutral-800 via-neutral-700 to-neutral-900", // Neutro sóbrio
+  "from-gray-900 via-black to-gray-800"        // Preto elegante
 ];

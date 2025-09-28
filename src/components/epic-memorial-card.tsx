@@ -22,57 +22,57 @@ export function EpicMemorialCard({ victim, isHovered, onHover, onLeave, gradient
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
     >
-      {/* Card com efeito 3D estilo Polaroid */}
+      {/* Card com efeito 3D estilo Polaroid - tom sóbrio */}
       <div
         className={`
           relative h-96 rounded-2xl overflow-hidden transition-all duration-700 ease-out
-          bg-white p-2 shadow-2xl
+          bg-gray-100 p-2 shadow-2xl
           ${isHovered 
-            ? 'transform translate-y-[-10px] rotate-1 shadow-[0_35px_60px_-12px_rgba(0,0,0,0.7),0_0_40px_rgba(255,255,255,0.15)]' 
-            : 'transform translate-y-0 rotate-0 shadow-[0_15px_35px_-10px_rgba(0,0,0,0.5)]'
+            ? 'transform translate-y-[-10px] rotate-1 shadow-[0_35px_60px_-12px_rgba(0,0,0,0.8),0_0_40px_rgba(0,0,0,0.2)]' 
+            : 'transform translate-y-0 rotate-0 shadow-[0_15px_35px_-10px_rgba(0,0,0,0.6)]'
           }
         `}
       >
         {/* Frame interno da Polaroid */}
         <div className="relative h-full rounded-xl overflow-hidden bg-black">
-          {/* Imagem de fundo se disponível - estilo Polaroid */}
+          {/* Imagem de fundo se disponível - estilo memorial sóbrio */}
           {victim.image && (
             <>
               <div 
                 className="absolute inset-0 bg-cover bg-center transform transition-transform duration-700"
                 style={{ 
                   backgroundImage: `url(${victim.image})`,
-                  filter: 'sepia(10%) contrast(1.1) brightness(0.9)'
+                  filter: 'grayscale(30%) sepia(5%) contrast(0.9) brightness(0.7)'
                 }}
               />
-              {/* Efeito Polaroid com degradê mais intenso */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-80" />
-              <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-transparent to-black/60" />
+              {/* Efeito memorial com degradê preto sóbrio */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/20 opacity-85" />
+              <div className="absolute inset-0 bg-gradient-to-br from-black/40 via-transparent to-black/70" />
             </>
           )}
           
-          {/* Fundo gradiente para cards sem imagem */}
+          {/* Fundo gradiente sóbrio para cards sem imagem */}
           {!victim.image && (
-            <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-90`} />
+            <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-95`} />
           )}
           
-          {/* Overlay sutil para harmonia */}
-          <div className={`absolute inset-0 ${victim.image ? 'bg-black/30' : 'bg-black/40'}`} />
+          {/* Overlay sutil para harmonia e respeito */}
+          <div className={`absolute inset-0 ${victim.image ? 'bg-black/40' : 'bg-black/30'}`} />
           
-          {/* Efeito de vinheta para profundidade */}
-          <div className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-black/40" />
+          {/* Efeito de vinheta para profundidade memorial */}
+          <div className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-black/50" />
           
-          {/* Efeito de brilho no hover */}
+          {/* Efeito de brilho sutil no hover */}
           <div 
             className={`
-              absolute inset-0 bg-gradient-to-tr from-white/20 via-transparent to-white/10 
+              absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-white/5 
               transition-opacity duration-500
               ${isHovered ? 'opacity-100' : 'opacity-0'}
             `} 
           />
           
-          {/* Borda interna estilo Polaroid */}
-          <div className="absolute inset-2 border border-white/20 rounded-xl" />
+          {/* Borda interna estilo memorial */}
+          <div className="absolute inset-2 border border-white/15 rounded-xl" />
         
           {/* Conteúdo do card */}
           <div className="relative z-10 h-full flex flex-col justify-between p-8 text-white">
@@ -133,11 +133,11 @@ export function EpicMemorialCard({ victim, isHovered, onHover, onLeave, gradient
             </div>
           </div>
 
-          {/* Border glow effect */}
+          {/* Border sutil para memorial */}
           <div 
             className={`
               absolute inset-0 rounded-xl border-2 transition-all duration-500
-              ${isHovered ? 'border-white/50' : 'border-white/20'}
+              ${isHovered ? 'border-white/30' : 'border-white/10'}
             `} 
           />
         </div>
