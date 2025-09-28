@@ -1,20 +1,54 @@
 import { BairroData, VictimLight } from '@/types/bairros';
 import { BAIRROS_BASE } from '@/data/bairros-data';
 
-export async function fetchRealViolenceData(): Promise<number> {
+export async function fetchRealViolenceData(): Promise<{ total: number; porBairro: any[] }> {
   try {
-    const response = await fetch('/api/violence-data');
-    const data = await response.json();
-    return data.totalHomicides || 0;
+    // Tenta primeiro a API do Fogo Cruzado
+    const fogoCruzadoResponse = await fetch('/api/fogo-cruzado');
+    
+    if (fogoCruzadoResponse.ok) {
+      const fogoCruzadoData = await fogoCruzadoResponse.json();
+      
+      if (fogoCruzadoData.success) {
+        return {
+          total: fogoCruzadoData.data.totalHomicidios,
+          porBairro: fogoCruzadoData.data.bairros
+        };
+      }
+    }
+    
+    // Fallback para API local
+    const localResponse = await fetch('/api/violence-data');
+    const localData = await localResponse.json();
+    
+    return {
+      total: localData.totalHomicides || 161,
+      porBairro: []
+    };
   } catch (error) {
     console.error('Erro ao buscar dados de violência:', error);
-    return 161; // Fallback baseado nos dados de 2024 (81) + 2023 (80)
+    return {
+      total: 161, // Fallback baseado nos dados de 2024 (81) + 2023 (80)
+      porBairro: []
+    };
   }
 }
 
-export function calculateBairrosData(totalHomicidiosSalvador: number): BairroData[] {
+export function calculateBairrosData(
+  totalHomicidiosSalvador: number, 
+  dadosReaisPorBairro: any[] = []
+): BairroData[] {
   return BAIRROS_BASE.map(bairro => {
-    const homicidios = Math.round(totalHomicidiosSalvador * bairro.percentualViolencia);
+    // Tenta encontrar dados reais para este bairro
+    const dadosReais = dadosReaisPorBairro.find(real => 
+      real.bairro.toLowerCase().includes(bairro.name.toLowerCase()) ||
+      bairro.name.toLowerCase().includes(real.bairro.toLowerCase())
+    );
+    
+    // Se tem dados reais, usa eles; senão usa distribuição proporcional
+    const homicidios = dadosReais ? dadosReais.homicidios : 
+      Math.round(totalHomicidiosSalvador * bairro.percentualViolencia);
+    
     const taxa = (homicidios / bairro.populacao) * 100000; // Taxa por 100 mil habitantes
     
     return {

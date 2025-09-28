@@ -34,11 +34,11 @@ export function BairrosMapContent() {
     lng: -38.4800
   };
 
-  // Carrega dados reais do CSV e atualiza os bairros
+  // Carrega dados reais do Fogo Cruzado e CSV, atualiza os bairros
   useEffect(() => {
     const loadRealData = async () => {
-      const totalHomicidios = await fetchRealViolenceData();
-      const novosDados = calculateBairrosData(totalHomicidios);
+      const { total, porBairro } = await fetchRealViolenceData();
+      const novosDados = calculateBairrosData(total, porBairro);
       setBairrosData(novosDados);
       
       // Regenera os pontos de luz com os dados atualizados
