@@ -13,7 +13,8 @@ import {
   Calendar,
   Settings,
   HelpCircle,
-  Crown
+  Crown,
+  Clock
 } from "lucide-react";
 
 interface SidebarItem {
@@ -25,8 +26,8 @@ interface SidebarItem {
 
 const SIDEBAR_ITEMS: SidebarItem[] = [
   { icon: Home, label: "Dashboard", href: "/" },
-  { icon: BarChart3, label: "Painel de Dados", href: "/" },
   { icon: Heart, label: "Memorial", href: "/memorial" },
+  { icon: Clock, label: "Timeline", href: "/timeline" },
   { icon: MapPin, label: "Mapa de Bairros", href: "/bairros" },
   { icon: HelpCircle, label: "Ajuda", href: "#" }
 ];
