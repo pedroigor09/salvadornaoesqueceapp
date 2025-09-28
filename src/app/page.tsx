@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { ModernSidebar } from "@/components/modern-sidebar";
 import { ModernDashboardContent } from "@/components/modern-dashboard-content";
 import { MainIntro } from "@/components/main-intro";
-import { ServicesPage } from "@/components/services-page";
+import ServicesPage from "@/components/services-page";
 
 export default function Home() {
   const [showIntro, setShowIntro] = useState(true);

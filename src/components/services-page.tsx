@@ -9,7 +9,11 @@ import { EmergencySection } from './emergency-section';
 import { servicesData, type Service } from '../data/services-data';
 import { servicesAnimations } from '../styles/services-animations';
 
-const ServicesPageRefactored = () => {
+interface ServicesPageProps {
+  onBack?: () => void;
+}
+
+const ServicesPageRefactored = ({ onBack }: ServicesPageProps) => {
   const [filter, setFilter] = useState<'all' | 'police' | 'cram' | 'emergency'>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [visibleCards, setVisibleCards] = useState<number[]>([]);
@@ -114,6 +118,19 @@ const ServicesPageRefactored = () => {
 
       {/* Header Section */}
       <ServicesHeader scrollY={scrollY} />
+
+      {/* Back Button */}
+      {onBack && (
+        <div className="relative z-10 max-w-7xl mx-auto px-4 pt-8">
+          <button
+            onClick={onBack}
+            className="bg-gradient-to-r from-amber-500 to-amber-400 text-black px-6 py-3 rounded-full font-semibold shadow-lg hover:scale-105 transition-transform duration-300 flex items-center gap-2"
+          >
+            <ArrowUp className="w-5 h-5 rotate-180" />
+            Voltar
+          </button>
+        </div>
+      )}
 
       {/* Stats Section */}
       <div className="relative z-10 flex justify-center pb-16">

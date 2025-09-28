@@ -158,6 +158,8 @@ export const servicesData: Service[] = [
     type: "emergency"
   }
 ];
+
+export const additionalServices = [
   {
     title: "Delegacia Virtual",
     description: "Ampliou as opções de registros de ocorrências incluindo violência doméstica contra mulher. As denúncias podem ser feitas pela internet.",
