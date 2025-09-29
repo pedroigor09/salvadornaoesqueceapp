@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Star, Phone, MapPin, Clock, Mail, Shield, Heart } from "lucide-react";
+import { Star, Phone, Shield, Heart } from "lucide-react";
 import { Service } from "../data/services-data";
+import { ServiceInfo } from "./service-info";
+import { ContactButton } from "./contact-button";
 
 interface ServiceCardProps {
   service: Service;
@@ -59,6 +61,26 @@ export function ServiceCard({ service, index, isVisible, onIntersect }: ServiceC
     }
   };
 
+  const getServiceIcon = () => {
+    if (service.type === 'police') {
+      return <Shield className="w-8 h-8 text-blue-400" />;
+    } else if (service.type === 'cram') {
+      return <Heart className="w-8 h-8 text-green-400" />;
+    } else {
+      return <Phone className="w-8 h-8 text-red-400" />;
+    }
+  };
+
+  const getIconBackground = () => {
+    if (service.type === 'police') {
+      return 'bg-blue-500/20';
+    } else if (service.type === 'cram') {
+      return 'bg-green-500/20';
+    } else {
+      return 'bg-red-500/20';
+    }
+  };
+
   return (
     <div
       ref={cardRef}
@@ -87,19 +109,10 @@ export function ServiceCard({ service, index, isVisible, onIntersect }: ServiceC
       )}
 
       <div className="relative z-10">
+        {/* Header com ícone e título */}
         <div className="flex items-start gap-4 mb-6">
-          <div className={`
-            p-3 rounded-2xl ${service.type === 'police' ? 'bg-blue-500/20' : 
-                              service.type === 'cram' ? 'bg-green-500/20' : 
-                              'bg-red-500/20'}
-          `}>
-            {service.type === 'police' ? (
-              <Shield className={`w-8 h-8 ${service.type === 'police' ? 'text-blue-400' : 'text-blue-400'}`} />
-            ) : service.type === 'cram' ? (
-              <Heart className="w-8 h-8 text-green-400" />
-            ) : (
-              <Phone className="w-8 h-8 text-red-400" />
-            )}
+          <div className={`p-3 rounded-2xl ${getIconBackground()}`}>
+            {getServiceIcon()}
           </div>
           <div className="flex-1">
             <h3 className="text-xl font-bold text-white mb-2 group-hover:text-amber-300 transition-colors">
@@ -111,31 +124,10 @@ export function ServiceCard({ service, index, isVisible, onIntersect }: ServiceC
           </div>
         </div>
 
-        <div className="space-y-4">
-          <div className="flex items-center gap-3 text-amber-200">
-            <Phone className="w-5 h-5 text-amber-400" />
-            <span className="font-semibold text-lg">{service.phone}</span>
-          </div>
-          
-          <div className="flex items-start gap-3 text-gray-300">
-            <MapPin className="w-5 h-5 text-amber-400 mt-1" />
-            <div>
-              <div className="font-medium">{service.address}</div>
-              <div className="text-sm text-gray-400">{service.city} - {service.region}</div>
-            </div>
-          </div>
+        {/* Informações do serviço */}
+        <ServiceInfo service={service} />
 
-          <div className="flex items-center gap-3 text-gray-300">
-            <Clock className="w-5 h-5 text-amber-400" />
-            <span className="text-sm">{service.hours}</span>
-          </div>
-
-          <div className="flex items-start gap-3 text-gray-300">
-            <Mail className="w-5 h-5 text-amber-400 mt-1" />
-            <span className="text-sm break-all">{service.email}</span>
-          </div>
-        </div>
-
+        {/* Especialidades */}
         <div className="mt-6">
           <div className="text-sm text-amber-300 mb-2 font-semibold">Especialidades:</div>
           <div className="flex flex-wrap gap-2">
@@ -150,9 +142,8 @@ export function ServiceCard({ service, index, isVisible, onIntersect }: ServiceC
           </div>
         </div>
 
-        <button className="w-full mt-6 bg-gradient-to-r from-amber-500 to-amber-400 text-black font-semibold py-3 rounded-2xl hover:scale-105 transition-all duration-300 shadow-lg shadow-amber-500/25">
-          Entrar em Contato
-        </button>
+        {/* Botão de contato */}
+        <ContactButton service={service} />
       </div>
     </div>
   );
