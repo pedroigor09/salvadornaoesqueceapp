@@ -42,7 +42,7 @@ export function ModernSidebar({ children }: ModernSidebarProps) {
   return (
     <div className="flex min-h-screen bg-gray-950">
       {/* Sidebar */}
-      <aside className="w-64 bg-gray-900 border-r border-gray-800 flex flex-col">
+      <aside className="hidden md:flex w-64 bg-gray-900 border-r border-gray-800 flex-col">
         {/* Logo/Header */}
         <div className="p-6 border-b border-gray-800">
           <div className="flex items-center space-x-3">
@@ -93,12 +93,46 @@ export function ModernSidebar({ children }: ModernSidebarProps) {
         </div>
       </aside>
 
+      {/* Mobile Navigation - Bottom Bar */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800 px-4 py-2 z-50">
+        <div className="flex justify-around items-center">
+          {SIDEBAR_ITEMS.slice(0, 4).map((item, index) => {
+            const isActive = pathname === item.href;
+            
+            return (
+              <Link
+                key={index}
+                href={item.href}
+                className={cn(
+                  "flex flex-col items-center space-y-1 px-3 py-2 rounded-lg transition-all duration-200",
+                  isActive 
+                    ? "text-blue-400" 
+                    : "text-gray-400 hover:text-white"
+                )}
+              >
+                <item.icon className="h-5 w-5" />
+                <span className="text-xs font-medium">{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Top Bar */}
-        <header className="bg-gray-900 border-b border-gray-800 px-6 py-4">
+        <header className="bg-gray-900 border-b border-gray-800 px-4 md:px-6 py-4">
           <div className="flex items-center justify-between">
-            <div>
+            <div className="md:hidden flex items-center space-x-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-yellow-400 to-red-500">
+                <Crown className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <h1 className="text-white font-bold text-sm">Salvador</h1>
+                <p className="text-gray-400 text-xs">Não Esquece</p>
+              </div>
+            </div>
+            <div className="hidden md:block">
               <h2 className="text-white text-xl font-semibold">
                 Dashboard de Violência
               </h2>
@@ -120,7 +154,7 @@ export function ModernSidebar({ children }: ModernSidebarProps) {
         </header>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-auto bg-gray-950 p-6">
+        <div className="flex-1 overflow-auto bg-gray-950 p-4 md:p-6 pb-20 md:pb-6">
           {children}
         </div>
       </main>
