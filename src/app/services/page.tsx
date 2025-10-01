@@ -1,5 +1,14 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
 import ServicesPageRefactored from '@/components/services-page';
 
 export default function ServicesPage() {
-  return <ServicesPageRefactored />;
+  const router = useRouter();
+
+  const handleBack = () => {
+    router.push('/');
+  };
+
+  return <ServicesPageRefactored onBack={handleBack} />;
 }

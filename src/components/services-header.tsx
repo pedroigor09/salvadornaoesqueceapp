@@ -35,17 +35,6 @@ export function ServicesHeader({ onBack, scrollY }: ServicesHeaderProps) {
         ))}
       </div>
 
-      {/* Botão voltar */}
-      {onBack && (
-        <button
-          onClick={onBack}
-          className="absolute top-8 left-8 z-50 flex items-center space-x-2 px-4 py-2 bg-slate-800/80 backdrop-blur-sm rounded-full border border-slate-600 hover:border-purple-500 transition-all duration-300 group"
-        >
-          <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
-          <span className="text-sm">Voltar</span>
-        </button>
-      )}
-
       {/* Conteúdo principal do header */}
       <div className={`relative z-10 text-center max-w-4xl mx-auto px-8 transform transition-all duration-1500 ${
         isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
@@ -62,11 +51,22 @@ export function ServicesHeader({ onBack, scrollY }: ServicesHeaderProps) {
           Lista completa de serviços gratuitos de apoio jurídico e psicológico para mulheres vítimas de violência na Bahia
         </p>
 
-        <div className="flex items-center justify-center space-x-2 text-purple-400">
+        <div className="flex items-center justify-center space-x-2 text-purple-400 mb-8">
           <Shield className="h-5 w-5" />
           <span className="text-lg font-medium">Apoio • Proteção • Justiça</span>
           <Shield className="h-5 w-5" />
         </div>
+
+        {/* Botão Voltar para Home */}
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="bg-gradient-to-r from-amber-500/80 to-amber-400/80 text-black px-8 py-3 rounded-full font-semibold shadow-lg hover:scale-105 transition-all duration-300 flex items-center gap-2 backdrop-blur-sm border border-amber-300/30 hover:from-amber-500 hover:to-amber-400 mx-auto"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            Voltar para Home
+          </button>
+        )}
       </div>
 
       {/* Indicador de scroll */}

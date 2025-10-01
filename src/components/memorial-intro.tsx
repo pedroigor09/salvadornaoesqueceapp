@@ -2,40 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Heart, Star } from "lucide-react";
-
-interface TypewriterTextProps {
-  text: string;
-  speed?: number;
-  onComplete?: () => void;
-  className?: string;
-}
-
-function TypewriterText({ text, speed = 50, onComplete, className = "" }: TypewriterTextProps) {
-  const [displayedText, setDisplayedText] = useState("");
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    if (currentIndex < text.length) {
-      const timer = setTimeout(() => {
-        setDisplayedText(prev => prev + text[currentIndex]);
-        setCurrentIndex(prev => prev + 1);
-      }, speed);
-
-      return () => clearTimeout(timer);
-    } else if (onComplete) {
-      setTimeout(onComplete, 1000);
-    }
-  }, [currentIndex, text, speed, onComplete]);
-
-  return (
-    <span className={className}>
-      {displayedText}
-      {currentIndex < text.length && (
-        <span className="animate-pulse text-purple-400">|</span>
-      )}
-    </span>
-  );
-}
+import { MemorialTypewriterText } from "./memorial-typewriter-text";
+import { MemorialProgressIndicator } from "./memorial-progress-indicator";
 
 interface MemorialIntroProps {
   onComplete: () => void;
@@ -44,6 +12,7 @@ interface MemorialIntroProps {
 export function MemorialIntro({ onComplete }: MemorialIntroProps) {
   const [currentPhase, setCurrentPhase] = useState(0);
   const [showHearts, setShowHearts] = useState(false);
+  const [autoAdvance, setAutoAdvance] = useState(true);
   const [particles, setParticles] = useState<Array<{left: number, top: number, duration: number}>>([]);
   const [hearts, setHearts] = useState<Array<{left: number, top: number, delay: number, duration: number, size: number}>>([]);
 
@@ -56,15 +25,17 @@ export function MemorialIntro({ onComplete }: MemorialIntroProps) {
   ];
 
   const handlePhaseComplete = () => {
-    if (currentPhase < messages.length - 1) {
-      setTimeout(() => {
-        setCurrentPhase(prev => prev + 1);
-      }, 1500);
-    } else {
-      setShowHearts(true);
-      setTimeout(() => {
-        onComplete();
-      }, 3000);
+    if (autoAdvance) {
+      if (currentPhase < messages.length - 1) {
+        setTimeout(() => {
+          setCurrentPhase(prev => prev + 1);
+        }, 1500);
+      } else {
+        setShowHearts(true);
+        setTimeout(() => {
+          onComplete();
+        }, 3000);
+      }
     }
   };
 
@@ -87,17 +58,36 @@ export function MemorialIntro({ onComplete }: MemorialIntroProps) {
     setHearts(newHearts);
   }, []);
 
-  // Adicionar listener para tecla Escape
+  // Adicionar listeners para teclado
   useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
+    const handleKeyPress = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         onComplete();
+      } else if (event.key === 'ArrowRight') {
+        // Desabilitar avanço automático ao usar navegação manual
+        setAutoAdvance(false);
+        // Avançar para próxima fase
+        if (currentPhase < messages.length - 1) {
+          setCurrentPhase(prev => prev + 1);
+        } else if (!showHearts) {
+          setShowHearts(true);
+          setTimeout(() => {
+            onComplete();
+          }, 3000);
+        }
+      } else if (event.key === 'ArrowLeft') {
+        // Desabilitar avanço automático ao usar navegação manual
+        setAutoAdvance(false);
+        // Voltar para fase anterior
+        if (currentPhase > 0) {
+          setCurrentPhase(prev => prev - 1);
+        }
       }
     };
 
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
-  }, [onComplete]);
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [onComplete, currentPhase, showHearts, messages.length]);
 
   return (
     <div className="fixed inset-0 bg-black flex items-center justify-center z-50 overflow-hidden">
@@ -157,14 +147,15 @@ export function MemorialIntro({ onComplete }: MemorialIntroProps) {
               index <= currentPhase ? 'opacity-100' : 'opacity-0'
             }`}>
               {index === currentPhase ? (
-                <TypewriterText
+                <MemorialTypewriterText
+                  key={`${currentPhase}-${autoAdvance}`}
                   text={message}
                   speed={80}
                   onComplete={handlePhaseComplete}
                   className="text-2xl md:text-3xl font-light text-white leading-relaxed block"
                 />
               ) : index < currentPhase ? (
-                <p className="text-2xl md:text-3xl font-light text-white leading-relaxed opacity-60">
+                <p className="text-2xl md:text-3xl font-light text-white leading-relaxed opacity-60 font-[family-name:var(--font-poppins)]">
                   {message}
                 </p>
               ) : null}
@@ -192,26 +183,28 @@ export function MemorialIntro({ onComplete }: MemorialIntroProps) {
           </div>
         )}
 
-        {/* Indicador de progresso sutil */}
-        <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2">
-          <div className="flex space-x-2">
-            {messages.map((_, index) => (
-              <div
-                key={index}
-                className={`w-2 h-2 rounded-full transition-all duration-500 ${
-                  index <= currentPhase ? 'bg-purple-400' : 'bg-gray-600'
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Dica sobre pular - fixo na parte inferior */}
+        {/* Dicas de navegação - fixo na parte inferior */}
         {!showHearts && (
           <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
-            <p className="text-gray-500 text-xs text-center">
-              Pressione <kbd className="px-1 py-0.5 bg-gray-800 rounded text-gray-300">ESC</kbd> para continuar
-            </p>
+            {/* Indicador de progresso acima das dicas */}
+            <div className="mb-4">
+              <MemorialProgressIndicator 
+                currentPhase={currentPhase} 
+                totalPhases={messages.length} 
+              />
+            </div>
+            
+            <div className="text-center space-y-2 bg-black/50 backdrop-blur-sm rounded-lg px-4 py-2">
+              <p className="text-gray-400 text-xs">
+                <kbd className="px-2 py-1 bg-gray-800 rounded text-gray-300 mr-1">←</kbd>
+                <kbd className="px-2 py-1 bg-gray-800 rounded text-gray-300 mr-2">→</kbd>
+                Navegar entre mensagens
+              </p>
+              <p className="text-gray-400 text-xs">
+                <kbd className="px-2 py-1 bg-gray-800 rounded text-gray-300 mr-2">ESC</kbd>
+                Pular para o memorial
+              </p>
+            </div>
           </div>
         )}
 

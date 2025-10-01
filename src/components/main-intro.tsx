@@ -2,40 +2,10 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Heart, Star } from "lucide-react";
-
-interface TypewriterTextProps {
-  text: string;
-  speed?: number;
-  onComplete?: () => void;
-  className?: string;
-}
-
-function TypewriterText({ text, speed = 50, onComplete, className = "" }: TypewriterTextProps) {
-  const [displayedText, setDisplayedText] = useState("");
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    if (currentIndex < text.length) {
-      const timer = setTimeout(() => {
-        setDisplayedText(prev => prev + text[currentIndex]);
-        setCurrentIndex(prev => prev + 1);
-      }, speed);
-
-      return () => clearTimeout(timer);
-    } else if (onComplete) {
-      setTimeout(onComplete, 1000);
-    }
-  }, [currentIndex, text, speed, onComplete]);
-
-  return (
-    <span className={className}>
-      {displayedText}
-      {currentIndex < text.length && (
-        <span className="animate-pulse text-red-400">|</span>
-      )}
-    </span>
-  );
-}
+import { TypewriterText } from "./typewriter-text";
+import { ConnectionLine } from "./connection-line";
+import { FloatingPoint } from "./floating-point";
+import { ProgressIndicator } from "./progress-indicator";
 
 // Pontos de conexão para as estrelas/partículas
 const CONNECTION_POINTS = [
@@ -50,120 +20,6 @@ const CONNECTION_POINTS = [
   { x: 80, y: 65, delay: 4 },
 ];
 
-interface ConnectionLineProps {
-  from: { x: number; y: number };
-  to: { x: number; y: number };
-  isDrawn: boolean;
-  delay: number;
-}
-
-function ConnectionLine({ from, to, isDrawn, delay }: ConnectionLineProps) {
-  const [progress, setProgress] = useState(0);
-  
-  useEffect(() => {
-    if (isDrawn) {
-      const timer = setTimeout(() => {
-        setProgress(1);
-      }, delay * 1200); // Aumentei o delay para ser mais visível
-      
-      return () => clearTimeout(timer);
-    } else {
-      // Reset quando não deve ser desenhada
-      setProgress(0);
-    }
-  }, [isDrawn, delay]);
-
-  const pathData = `M ${from.x} ${from.y} Q ${(from.x + to.x) / 2} ${Math.min(from.y, to.y) - 20} ${to.x} ${to.y}`;
-  
-  return (
-    <svg
-      className="absolute inset-0 w-full h-full pointer-events-none"
-      style={{ zIndex: 1 }}
-    >
-      <defs>
-        <linearGradient id="connectionGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.3" />
-          <stop offset="50%" stopColor="#ffffff" stopOpacity="0.6" />
-          <stop offset="100%" stopColor="#ffffff" stopOpacity="0.2" />
-        </linearGradient>
-        <filter id="connectionGlow">
-          <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-          <feMerge> 
-            <feMergeNode in="coloredBlur"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
-      </defs>
-      <path
-        d={pathData}
-        stroke="url(#connectionGradient)"
-        strokeWidth="1"
-        fill="none"
-        filter="url(#connectionGlow)"
-        strokeDasharray="300"
-        strokeDashoffset={300 * (1 - progress)}
-        opacity={isDrawn ? 1 : 0}
-        style={{
-          transition: 'stroke-dashoffset 2s ease-in-out, opacity 0.5s ease-in-out'
-        }}
-      />
-    </svg>
-  );
-}
-
-interface FloatingPointProps {
-  point: typeof CONNECTION_POINTS[0];
-  index: number;
-}
-
-function FloatingPoint({ point, index }: FloatingPointProps) {
-  const [isVisible, setIsVisible] = useState(false);
-  
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-    }, point.delay * 1000);
-    
-    return () => clearTimeout(timer);
-  }, [point.delay]);
-
-  return (
-    <div
-      className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-1000 ${
-        isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-0'
-      }`}
-      style={{
-        left: `${point.x}%`,
-        top: `${point.y}%`,
-      }}
-    >
-      {/* Pulso de energia */}
-      <div
-        className="absolute inset-0 rounded-full animate-pulse"
-        style={{
-          background: 'radial-gradient(circle, rgba(255,255,255,0.2), transparent 70%)',
-          width: '30px',
-          height: '30px',
-          transform: 'translate(-50%, -50%)',
-          left: '50%',
-          top: '50%'
-        }}
-      />
-      
-      {/* Ponto principal */}
-      <div className="relative w-2 h-2 rounded-full bg-white opacity-80 animate-pulse">
-        {/* Estrela ocasional */}
-        {index % 3 === 0 && (
-          <Star 
-            className="absolute -top-1 -left-1 h-4 w-4 text-white opacity-60 animate-spin" 
-            style={{ animationDuration: '4s' }}
-          />
-        )}
-      </div>
-    </div>
-  );
-}
-
 interface MainIntroProps {
   onComplete: () => void;
 }
@@ -171,6 +27,7 @@ interface MainIntroProps {
 export function MainIntro({ onComplete }: MainIntroProps) {
   const [currentPhase, setCurrentPhase] = useState(0);
   const [showHearts, setShowHearts] = useState(false);
+  const [autoAdvance, setAutoAdvance] = useState(true);
   const [activeConnections, setActiveConnections] = useState<Set<number>>(new Set());
   const [isExiting, setIsExiting] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -185,28 +42,29 @@ export function MainIntro({ onComplete }: MainIntroProps) {
   ];
 
   const handlePhaseComplete = () => {
-    if (currentPhase < messages.length - 1) {
-      // Ativar conexão atual primeiro
-      setActiveConnections(prev => new Set([...prev, currentPhase]));
-      
-      setTimeout(() => {
-        setCurrentPhase(prev => prev + 1);
-      }, 1500);
-    } else {
-      // Ativar todas as conexões restantes no final
-      setActiveConnections(new Set(Array.from({ length: CONNECTION_POINTS.length - 1 }, (_, i) => i)));
-      setShowHearts(true);
-      setTimeout(() => {
-        // Iniciar animação de saída
-        setIsExiting(true);
-        // Completar após o fade-out
+    if (autoAdvance) {
+      if (currentPhase < messages.length - 1) {
+        // Ativar conexão atual primeiro
+        setActiveConnections(prev => new Set([...prev, currentPhase]));
+        
         setTimeout(() => {
-          onComplete();
-        }, 1000);
-      }, 3000);
+          setCurrentPhase(prev => prev + 1);
+        }, 1500);
+      } else {
+        // Ativar todas as conexões restantes no final
+        setActiveConnections(new Set(Array.from({ length: CONNECTION_POINTS.length - 1 }, (_, i) => i)));
+        setShowHearts(true);
+        setTimeout(() => {
+          // Iniciar animação de saída
+          setIsExiting(true);
+          setTimeout(() => {
+            onComplete();
+          }, 2000);
+        }, 3000);
+      }
     }
   };
-
+        
   // Ativar a primeira conexão automaticamente após um delay
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -216,22 +74,51 @@ export function MainIntro({ onComplete }: MainIntroProps) {
     return () => clearTimeout(timer);
   }, []);
 
-  // Listener para tecla Escape
+  // Listeners para teclado
   useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
+    const handleKeyPress = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         // Iniciar animação de saída
         setIsExiting(true);
-        // Completar após o fade-out
         setTimeout(() => {
           onComplete();
         }, 1000);
+      } else if (event.key === 'ArrowRight') {
+        // Desabilitar avanço automático ao usar navegação manual
+        setAutoAdvance(false);
+        // Avançar para próxima fase
+        if (currentPhase < messages.length - 1) {
+          setActiveConnections(prev => new Set([...prev, currentPhase]));
+          setCurrentPhase(prev => prev + 1);
+        } else if (!showHearts) {
+          setActiveConnections(new Set(Array.from({ length: CONNECTION_POINTS.length - 1 }, (_, i) => i)));
+          setShowHearts(true);
+          setTimeout(() => {
+            setIsExiting(true);
+            setTimeout(() => {
+              onComplete();
+            }, 2000);
+          }, 3000);
+        }
+      } else if (event.key === 'ArrowLeft') {
+        // Desabilitar avanço automático ao usar navegação manual
+        setAutoAdvance(false);
+        // Voltar para fase anterior
+        if (currentPhase > 0) {
+          setCurrentPhase(prev => prev - 1);
+          // Remover a última conexão ativa
+          setActiveConnections(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(currentPhase - 1);
+            return newSet;
+          });
+        }
       }
     };
 
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
-  }, [onComplete]);
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [onComplete, currentPhase, showHearts, messages.length]);
 
   return (
     <div 
@@ -315,13 +202,14 @@ export function MainIntro({ onComplete }: MainIntroProps) {
             }`}>
               {index === currentPhase ? (
                 <TypewriterText
+                  key={`${currentPhase}-${autoAdvance}`}
                   text={message}
                   speed={80}
                   onComplete={handlePhaseComplete}
                   className="text-2xl md:text-3xl font-light text-white leading-relaxed block"
                 />
               ) : index < currentPhase ? (
-                <p className="text-2xl md:text-3xl font-light text-white leading-relaxed opacity-60">
+                <p className="text-2xl md:text-3xl font-light text-white leading-relaxed opacity-60 font-[family-name:var(--font-poppins)]">
                   {message}
                 </p>
               ) : null}
@@ -329,26 +217,28 @@ export function MainIntro({ onComplete }: MainIntroProps) {
           ))}
         </div>
 
-        {/* Indicador de progresso sutil */}
-        <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2">
-          <div className="flex space-x-2">
-            {messages.map((_, index) => (
-              <div
-                key={index}
-                className={`w-2 h-2 rounded-full transition-all duration-500 ${
-                  index <= currentPhase ? 'bg-red-400' : 'bg-gray-600'
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Dica sobre pular - fixo na parte inferior */}
+        {/* Dicas de navegação - fixo na parte inferior */}
         {!showHearts && (
           <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-[60]">
-            <p className="text-gray-500 text-xs text-center">
-              Pressione <kbd className="px-1 py-0.5 bg-gray-800 rounded text-gray-300">ESC</kbd> para continuar
-            </p>
+            {/* Indicador de progresso acima das dicas */}
+            <div className="mb-4">
+              <ProgressIndicator 
+                currentPhase={currentPhase} 
+                totalPhases={messages.length} 
+              />
+            </div>
+            
+            <div className="text-center space-y-2 bg-black/50 backdrop-blur-sm rounded-lg px-4 py-2">
+              <p className="text-gray-400 text-xs">
+                <kbd className="px-2 py-1 bg-gray-800 rounded text-gray-300 mr-1">←</kbd>
+                <kbd className="px-2 py-1 bg-gray-800 rounded text-gray-300 mr-2">→</kbd>
+                Navegar entre mensagens
+              </p>
+              <p className="text-gray-400 text-xs">
+                <kbd className="px-2 py-1 bg-gray-800 rounded text-gray-300 mr-2">ESC</kbd>
+                Pular para o app
+              </p>
+            </div>
           </div>
         )}
 

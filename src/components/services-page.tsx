@@ -117,7 +117,7 @@ const ServicesPageRefactored = ({ onBack }: ServicesPageProps) => {
       </div>
 
       {/* Header Section */}
-      <ServicesHeader scrollY={scrollY} />
+      <ServicesHeader scrollY={scrollY} onBack={onBack} />
 
       {/* Stats Section */}
       <div className="relative z-10 flex justify-center pb-16">
